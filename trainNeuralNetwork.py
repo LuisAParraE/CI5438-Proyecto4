@@ -1,10 +1,9 @@
-from cgi import test
 import pandas
 import os
 import tensorflow as tf
 from tensorflow import keras
 from keras import  Sequential, datasets, losses
-from keras.layers import  Conv2D, Dense, Flatten,MaxPooling2D
+from keras.layers import  Conv2D, Dense, Flatten,MaxPooling2D, Dropout
 import numpy
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
@@ -39,8 +38,9 @@ modelo =  Sequential([
     Conv2D(64,(3,3), activation="relu"),
     MaxPooling2D(2,2),
     Flatten(),
-    Dense(units=20, activation="relu"),
-    Dense(units=20, activation="relu"),
+    Dense(units=25, activation="relu"),
+    Dense(units=25, activation="relu"),
+    Dropout(0.1),
     Dense(units=7, activation="softmax")
 ])
 
@@ -48,7 +48,7 @@ modelo =  Sequential([
 modelo.compile(optimizer='adam',loss =losses.SparseCategoricalCrossentropy(from_logits=False), metrics=["accuracy"] )
 saveFilepath = 'nnModels/'
 folder_name = 'graphs'
-epochs = 2
+epochs = 15
 trainLoss = []
 trainAcc = []
 testLoss = []
@@ -72,6 +72,7 @@ for i in range(0,epochs):
 plt.plot(trainLoss)
 plt.title(f"Train loss with epochs:{epochs}")
 plt.grid()
+plt.axis((0,epochs,0,10))
 plt.ylabel("Loss")
 plt.xlabel("Epoch")
 plt.savefig(f'{folder_name}/Train_Loss_epochs_{epochs}.png')
