@@ -4,6 +4,8 @@
 
 Se implementaron redes neuronales convulucionales para realizar la predicción del genero de canciones de acuerdo a su diagrama de ondas.
 
+![diagrama de ondas](/data/0.png)
+
 ## Ejecución
 
 ### Dependencias
