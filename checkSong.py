@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 listOfGenres = ["country","edm","jazz","pop","regueton","rock","salsa"]
 
 def main(songPath,modelPath):
+    #Obtenmos la grafica de la cancion
     y, sr = librosa.load(songPath)
     y_harm, y_perc = librosa.effects.hpss(y)
     plt.figure(figsize=(15,6))
@@ -21,15 +22,19 @@ def main(songPath,modelPath):
     librosa.display.waveshow(y_perc, sr=sr, color='r', alpha=0.5)
     plt.grid()
 
+    #La guardamos
     savePath = "temp/check.png"
     plt.savefig(savePath)
     plt.close()
     
+    #Importamos la imagen para pasarsela a la Red
     img = Image.open(savePath).convert('RGB').resize((1500, 600))
     img = np.array(img)
 
+    #Cargamos el modelo
     savedModel = tf.keras.models.load_model(modelPath)
 
+    #Evaluamos el grafico
     value = savedModel.predict(img[None,:,:],verbose=0)
     maxIndex = 0
     maxValue = -1
@@ -39,7 +44,8 @@ def main(songPath,modelPath):
             maxValue = element
             maxIndex = i
         i = i+1
-
+    
+    #Imprimimos el resultado
     print(f"La cancion es de Genero: {listOfGenres[maxIndex]}")
     os.remove(savePath)
 

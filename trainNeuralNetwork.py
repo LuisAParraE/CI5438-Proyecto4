@@ -10,6 +10,8 @@ from sklearn.model_selection import train_test_split
 
 #print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
 
+batchSize = 2
+
 #funciones
 def readImage(image_path,genre):
     raw = tf.io.read_file(image_path)
@@ -17,34 +19,40 @@ def readImage(image_path,genre):
     image = tf.image.resize(image,(600,1500))
     return image,genre
 
+#Se importa la data del CSV
 allDataInfo = pandas.read_csv("imageData.csv")
 
+#Aislamos las imagenes de los generos
 filePath = allDataInfo["path"].values
 labels = allDataInfo["genre"].values
 
+#Separamos el dataset e train y test
 DataTraining,DataTest,AnswerTraining,AnswerTest = train_test_split(
             filePath, labels,test_size= 0.2,shuffle=True
         )
 
+#Lo convertimos en un dataset de tensorflow
 tfDataset_train = tf.data.Dataset.from_tensor_slices((DataTraining,AnswerTraining))
 tfDataset_test = tf.data.Dataset.from_tensor_slices((DataTest,AnswerTest))
 
-tfDataset_train = tfDataset_train.map(readImage).batch(2)
-tfDataset_test = tfDataset_test.map(readImage).batch(2)
+#Obtenemos las imagenes y asiganmos el batchSize
+tfDataset_train = tfDataset_train.map(readImage).batch(batchSize)
+tfDataset_test = tfDataset_test.map(readImage).batch(batchSize)
 
+#Aca planteamos el modelo de la red Nueronal
 modelo =  Sequential([
     Conv2D(32,(3,3), input_shape=(600,1500,3),activation="relu"),
     MaxPooling2D(2,2),
-    Conv2D(64,(3,3), activation="relu"),
+    Conv2D(32,(5,5), activation="relu"),
     MaxPooling2D(2,2),
     Flatten(),
     Dense(units=25, activation="relu"),
     Dense(units=25, activation="relu"),
-    Dropout(0.1),
+    Dropout(0.2),
     Dense(units=7, activation="softmax")
 ])
 
-
+#Compilasmos el modelo
 modelo.compile(optimizer='adam',loss =losses.SparseCategoricalCrossentropy(from_logits=False), metrics=["accuracy"] )
 saveFilepath = 'nnModels/'
 folder_name = 'graphs'
@@ -53,6 +61,8 @@ trainLoss = []
 trainAcc = []
 testLoss = []
 testAcc = []
+
+#Entrenamos la red
 for i in range(0,epochs):
     print(f"---Epoca {i+1}/{epochs}---")
     historialTrain = modelo.fit(tfDataset_train,epochs=1)
@@ -68,7 +78,7 @@ for i in range(0,epochs):
     testLoss.append(lossTest)
     testAcc.append(accTest)
 
-
+#Guardamos las gráficas
 plt.plot(trainLoss)
 plt.title(f"Train loss with epochs:{epochs}")
 plt.grid()

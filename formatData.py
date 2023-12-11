@@ -10,7 +10,7 @@ dataPath = "data"
 
 #Extraemos la lista de generos
 listOfGenres = [f for f in os.listdir(songsPath) if os.path.isdir(songsPath+"\\"+f)]
-#print(f"path,genre",file=open(f"imageData.csv", 'x'))
+print(f"path,genre",file=open(f"imageData.csv", 'x'))
 i = 0
 for genre in listOfGenres:
     for song in os.listdir(songsPath+"\\"+genre):
